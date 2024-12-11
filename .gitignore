@@ -19,6 +19,9 @@ x64/
 *.opensdf
 *.log
 
+# Visual Studio workspace
+.vs/
+
 # Backup & temporary files
 *.bak
 *.tmp
