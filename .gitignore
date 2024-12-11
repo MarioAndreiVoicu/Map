@@ -1,0 +1,26 @@
+# Ignore build artifacts
+*.obj
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.idb
+*.tlog
+*.lastbuildstate
+Debug/
+Release/
+x64/
+
+# Ignore Visual Studio files
+*.suo
+*.user
+*.vcxproj.user
+*.ipch
+*.opensdf
+*.log
+
+# Backup & temporary files
+*.bak
+*.tmp
+*.ncb
+*.~*

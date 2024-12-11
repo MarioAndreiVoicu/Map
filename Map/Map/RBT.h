@@ -1,7 +1,7 @@
 #pragma once
 #include<iostream>
 #include<utility>
-#include<vector>  //used for constructing the tree from an initialization vector
+#include<vector>  //used only for constructing the tree from an initialization vector
 
 template <typename KeyType, typename ValueType, typename Compare = std::less<KeyType>>
 class RBT
@@ -644,7 +644,6 @@ ValueType& RBT<KeyType, ValueType, Compare>::operator[](const KeyType& key)
 	if (find(key) == nullptr)  //if the key is not found in the tree,it is inserted
 	{
 		insert({ key,ValueType() });
-		count++;
 	}
 
 	return find(key)->KeyValuePair.second;  //it returns the value of the key that was either found or inserted
