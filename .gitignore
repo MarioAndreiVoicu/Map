@@ -1,29 +1,40 @@
-# Ignore build artifacts
+# Ignore build results and Visual Studio files
+
+# Build folders
+x64/
+build/
+Debug/
+Release/
+
+# Visual Studio temporary files
+.vs/
+*.suo
+*.user
+*.opendb
+*.VC.db
+
+# Visual Studio project files that should not be tracked
+*.vcxproj.user
+*.vcxproj.filters
+*.cache
+*.log
+
+# Compiled object files and binaries
 *.obj
 *.exe
 *.dll
+*.lib
 *.pdb
 *.ilk
 *.idb
+
+# Temporary and backup files
+*.tmp
 *.tlog
 *.lastbuildstate
-Debug/
-Release/
-x64/
-
-# Ignore Visual Studio files
-*.suo
-*.user
-*.vcxproj.user
-*.ipch
-*.opensdf
-*.log
-
-# Visual Studio workspace
-.vs/
-
-# Backup & temporary files
 *.bak
-*.tmp
-*.ncb
-*.~*
+*.swp
+
+# Other system files
+Thumbs.db
+.DS_Store
