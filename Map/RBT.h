@@ -59,10 +59,10 @@ private:
     void EraseRepair(Node* node);
     void TransplantRBT(Node* node1, Node* node2);
     void clear(Node* node);
-    void displayPreOrder(Node* node);
-    void displayInOrder(Node* node);
-    void displayPostOrder(Node* node);
-    void displayKeyValue(Node* node);
+    void displayPreOrder(Node* node) const;
+    void displayInOrder(Node* node) const;
+    void displayPostOrder(Node* node) const;
+    void displayKeyValue(Node* node) const;
     void erase(Node* nodeDeleted);
     Node* CopySubtree(Node* node, Node* otherSentinel, Node* parent = nullptr, bool isRoot = false);
 
@@ -71,26 +71,31 @@ public:
     RBT(const Compare& comparator = Compare());
     RBT(const RBT& other, const Compare& comparator = Compare());
     RBT& operator=(const RBT& other);
+	RBT(RBT&& other) noexcept;
+	RBT& operator=(RBT&& other) noexcept;
     ~RBT();
 
     // Public member functions
     void insert(const KeyValue& KeyValue);
-    Node* max(Node* node);
-    Node* min(Node* node);
+    Node* max(Node* node) const;
+    Node* min(Node* node) const;
     Node* successor(Node* node);
+    const Node* successor(Node* node) const;
     Node* predecessor(Node* node);
+    const Node* predecessor(Node* node) const;
     Node* find(const KeyType& keySearch);
+    const Node* find(const KeyType& keySearch) const;
     void deleteKey(const KeyType& keyDeleted);
     ValueType& operator[](const KeyType& key);
-    int size();
+    int size() const;
     void clear();
-    bool empty();
-    void displayPreOrder();
-    void displayInOrder();
-    void displayPostOrder();
-    void displayKeyValue();
-    Node* getSentinel();
-    Node* getRoot();
+    bool empty() const;
+    void displayPreOrder() const;
+    void displayInOrder() const;
+    void displayPostOrder() const;
+    void displayKeyValue() const;
+    Node* getSentinel() const;
+    Node* getRoot() const;
 };
 
 /* ======================= Function Implementations ======================= */
@@ -336,7 +341,7 @@ void RBT<KeyType, ValueType, Compare>::clear(Node* node)
  * @param node The current node.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayPreOrder(Node* node)
+void RBT<KeyType, ValueType, Compare>::displayPreOrder(Node* node) const
 {
     if (node != sentinel)
     {
@@ -353,7 +358,7 @@ void RBT<KeyType, ValueType, Compare>::displayPreOrder(Node* node)
  * @param node The current node.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayInOrder(Node* node)
+void RBT<KeyType, ValueType, Compare>::displayInOrder(Node* node) const
 {
     if (node != sentinel)
     {
@@ -370,7 +375,7 @@ void RBT<KeyType, ValueType, Compare>::displayInOrder(Node* node)
  * @param node The current node.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayPostOrder(Node* node)
+void RBT<KeyType, ValueType, Compare>::displayPostOrder(Node* node) const
 {
     if (node != sentinel)
     {
@@ -387,7 +392,7 @@ void RBT<KeyType, ValueType, Compare>::displayPostOrder(Node* node)
  * @param node The current node.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayKeyValue(Node* node)
+void RBT<KeyType, ValueType, Compare>::displayKeyValue(Node* node) const
 {
     if (node != sentinel)
     {
@@ -498,6 +503,56 @@ RBT<KeyType, ValueType, Compare>::RBT(const RBT& other, const Compare& comparato
 }
 
 /**
+ * @brief Move constructor.
+ *
+ * @param other The tree to copy.
+ */
+template<typename KeyType, typename ValueType, typename Compare>
+RBT<KeyType, ValueType, Compare>& RBT<KeyType, ValueType, Compare>::operator=(const RBT& other)
+{
+	if (this != &other)
+    {
+        clear();
+        root = CopySubtree(other.root, other.sentinel, sentinel, true);
+        count = other.count;
+    }
+	return *this;
+}
+
+/**
+ * @brief Move constructor.
+ *
+ * @param other The tree to move.
+ */
+template<typename KeyType, typename ValueType, typename Compare>
+RBT<KeyType, ValueType, Compare>::RBT(RBT&& other) noexcept
+	: root(other.root), sentinel(other.sentinel), comparator(std::move(other.comparator)), count(other.count)
+{
+	other.root = other.sentinel = nullptr;
+	other.count = 0;
+}
+
+/**
+ * @brief Move assignment operator.
+ *
+ * @param other The tree to move.
+ */
+template<typename KeyType, typename ValueType, typename Compare>
+RBT<KeyType, ValueType, Compare>& RBT<KeyType, ValueType, Compare>::operator=(RBT&& other) noexcept
+{
+	if (this == &other)
+		return *this;
+	clear();
+	root = other.root;
+	sentinel = other.sentinel;
+	comparator = std::move(other.comparator);
+	count = other.count;
+	other.root = other.sentinel = nullptr;
+	other.count = 0;
+	return *this;
+}
+
+/**
  * @brief Destructor.
  *
  * Clears the tree and deallocates memory.
@@ -584,7 +639,7 @@ void RBT<KeyType, ValueType, Compare>::insert(const KeyValue& KeyValue)
  * @return Pointer to the node with the maximum key, or nullptr if none.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::max(Node* node)
+typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::max(Node* node) const
 {
     if (node == sentinel)
         return nullptr;
@@ -600,7 +655,7 @@ typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare
  * @return Pointer to the node with the minimum key, or nullptr if none.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::min(Node* node)
+typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::min(Node* node) const
 {
     if (node == sentinel)
         return nullptr;
@@ -630,6 +685,21 @@ typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare
 }
 
 /**
+ * @brief Finds the successor of a given node.
+ * 
+ * Uses const_cast to call the non-const version then casts the result back to const.
+ * This is a workaround to avoid code duplication
+ *
+ * @param node The node whose successor is to be found.
+ * @return Pointer to the successor node, or nullptr if none exists.
+ */
+template <typename KeyType, typename ValueType, typename Compare>
+const typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::successor(Node* node) const
+{
+    return const_cast<RBT*>(this)->successor(node);
+}
+
+/**
  * @brief Finds the predecessor of a given node.
  *
  * @param node The node whose predecessor is to be found.
@@ -649,6 +719,21 @@ typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare
     return nullptr;
 }
 
+/*
+*  @brief Finds the predecessor of a given node.
+ *
+ * Uses const_cast to call the non-const version then casts the result back to const.
+ * This is a workaround to avoid code duplication
+ *
+ * @param node The node whose predecessor is to be found.
+ * @return Pointer to the predecessor node, or nullptr if none exists.
+*/
+template <typename KeyType, typename ValueType, typename Compare>
+const typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::predecessor(Node* node) const
+{
+    return const_cast<RBT*>(this)->predecessor(node);
+}
+
 /**
  * @brief Searches for a node with the given key.
  *
@@ -666,6 +751,21 @@ typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare
         node = comparator(node->KeyValuePair.first, keySearch) ? node->right : node->left;
     }
     return nullptr;
+}
+
+/**
+ * @brief Searches for a node with the given key.
+ *
+ * Uses const_cast to call the non-const version then casts the result back to const.
+ * This is a workaround to avoid code duplication
+ *
+ * @param keySearch The key to search for.
+ * @return Pointer to the node containing the key, or nullptr if not found.
+ */
+template <typename KeyType, typename ValueType, typename Compare>
+const typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::find(const KeyType& keySearch) const
+{
+    return const_cast<RBT*>(this)->find(keySearch);
 }
 
 /**
@@ -695,9 +795,13 @@ void RBT<KeyType, ValueType, Compare>::deleteKey(const KeyType& keyDeleted)
 template <typename KeyType, typename ValueType, typename Compare>
 ValueType& RBT<KeyType, ValueType, Compare>::operator[](const KeyType& key)
 {
-    if (find(key) == nullptr)
-        insert({ key, ValueType() });
-    return find(key)->KeyValuePair.second;
+	Node* node = find(key);
+    if (!node)
+    {
+		insert({ key, ValueType() });
+		node = find(key);
+	}
+	return node->KeyValuePair.second;
 }
 
 /**
@@ -706,7 +810,7 @@ ValueType& RBT<KeyType, ValueType, Compare>::operator[](const KeyType& key)
  * @return The size of the tree.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-int RBT<KeyType, ValueType, Compare>::size()
+int RBT<KeyType, ValueType, Compare>::size() const
 {
     return count;
 }
@@ -730,7 +834,7 @@ void RBT<KeyType, ValueType, Compare>::clear()
  * @return True if empty, false otherwise.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-bool RBT<KeyType, ValueType, Compare>::empty()
+bool RBT<KeyType, ValueType, Compare>::empty() const
 {
     return root == sentinel;
 }
@@ -739,7 +843,7 @@ bool RBT<KeyType, ValueType, Compare>::empty()
  * @brief Displays the tree in preorder.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayPreOrder()
+void RBT<KeyType, ValueType, Compare>::displayPreOrder() const
 {
     displayPreOrder(root);
 }
@@ -748,7 +852,7 @@ void RBT<KeyType, ValueType, Compare>::displayPreOrder()
  * @brief Displays the tree in inorder.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayInOrder()
+void RBT<KeyType, ValueType, Compare>::displayInOrder() const
 {
     displayInOrder(root);
 }
@@ -757,7 +861,7 @@ void RBT<KeyType, ValueType, Compare>::displayInOrder()
  * @brief Displays the tree in postorder.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayPostOrder()
+void RBT<KeyType, ValueType, Compare>::displayPostOrder() const
 {
     displayPostOrder(root);
 }
@@ -766,7 +870,7 @@ void RBT<KeyType, ValueType, Compare>::displayPostOrder()
  * @brief Displays only the key-value pairs in the tree (inorder).
  */
 template <typename KeyType, typename ValueType, typename Compare>
-void RBT<KeyType, ValueType, Compare>::displayKeyValue()
+void RBT<KeyType, ValueType, Compare>::displayKeyValue() const
 {
     displayKeyValue(root);
 }
@@ -777,7 +881,7 @@ void RBT<KeyType, ValueType, Compare>::displayKeyValue()
  * @return Pointer to the sentinel node.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::getSentinel()
+typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::getSentinel() const
 {
     return sentinel;
 }
@@ -788,7 +892,7 @@ typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare
  * @return Pointer to the root node.
  */
 template <typename KeyType, typename ValueType, typename Compare>
-typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::getRoot()
+typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare>::getRoot() const
 {
     return root;
 }

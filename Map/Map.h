@@ -29,32 +29,29 @@ public:
     Map(const Map& other, const Compare& comparator = Compare());
     Map(Iterator itBegin, Iterator itEnd, const Compare& comparator = Compare());
     Map& operator=(const Map& other);
+    Map(Map&& other);
+	Map& operator=(Map&& other);
     ~Map() {}
 
     // Basic member functions
     typename RBT<KeyType, ValueType, Compare>::Node* find(const KeyType& key);
+    const typename RBT<KeyType, ValueType, Compare>::Node* find(const KeyType& key) const;
     ValueType& operator[](const KeyType& key);
     void insert(const KeyValue& KeyValue);
-    bool empty();
-    int size();
-    int count(const KeyType& key);
+    bool empty() const;
+    int size() const;
+    int count(const KeyType& key) const;
     KeyValue& max();
+    const KeyValue& max() const;
     KeyValue& min();
+    const KeyValue& min() const;
     void erase(const KeyType& keyDeleted);
     void clear();
-    void display();
+    void display() const;
 
     // Comparison and merging
-    bool operator==(Map<KeyType, ValueType, Compare>& other);
-    bool operator!=(const RBT<KeyType, ValueType, Compare>& other);
-
-    /**
-     * @brief Merges another map into this one.
-     *
-     * Inserts all key-value pairs from mergeMap into this map.
-     *
-     * @param mergeMap The map to merge.
-     */
+    bool operator==(const Map<KeyType, ValueType, Compare>& other) const;
+    bool operator!=(const Map<KeyType, ValueType, Compare>& other) const;
     void mergeMaps(Map<KeyType, ValueType, Compare>& mergeMap);
 
     // Iterator functions
@@ -62,7 +59,8 @@ public:
     Iterator end();
     Iterator lower_bound(const KeyType& key);
     Iterator upper_bound(const KeyType& key);
-
+    ConstIterator lower_bound(const KeyType& key) const;
+	ConstIterator upper_bound(const KeyType& key) const;
     ConstIterator begin() const;
     ConstIterator end() const;
     ConstIterator cbegin() const;
@@ -151,7 +149,41 @@ Map<KeyType, ValueType, Compare>::Map(Iterator itBegin, Iterator itEnd, const Co
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
+Map<KeyType, ValueType, Compare>& Map<KeyType, ValueType, Compare>::operator=(const Map& other)
+{
+    if (this != &other)
+    {
+        tree = other.tree;
+        comparator = other.comparator;
+    }
+    return *this;
+}
+
+template<typename KeyType, typename ValueType, typename Compare>
+Map<KeyType, ValueType, Compare>::Map(Map&& other)
+	: tree(std::move(other.tree)), comparator(std::move(other.comparator))
+{}
+
+template<typename KeyType, typename ValueType, typename Compare>
+Map<KeyType, ValueType, Compare>& Map<KeyType, ValueType, Compare>::operator=(Map && other)
+{
+	if (this != &other)
+    {
+        tree = std::move(other.tree);
+        comparator = std::move(other.comparator);
+    }
+	return *this;
+}
+
+
+template<typename KeyType, typename ValueType, typename Compare>
 typename RBT<KeyType, ValueType, Compare>::Node* Map<KeyType, ValueType, Compare>::find(const KeyType& key)
+{
+    return tree.find(key);
+}
+
+template<typename KeyType, typename ValueType, typename Compare>
+const typename RBT<KeyType, ValueType, Compare>::Node* Map<KeyType, ValueType, Compare>::find(const KeyType& key) const
 {
     return tree.find(key);
 }
@@ -169,19 +201,19 @@ void Map<KeyType, ValueType, Compare>::insert(const KeyValue& KeyValue)
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-bool Map<KeyType, ValueType, Compare>::empty()
+bool Map<KeyType, ValueType, Compare>::empty() const
 {
     return tree.empty();
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-int Map<KeyType, ValueType, Compare>::size()
+int Map<KeyType, ValueType, Compare>::size() const
 {
     return tree.size();
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-int Map<KeyType, ValueType, Compare>::count(const KeyType& key)
+int Map<KeyType, ValueType, Compare>::count(const KeyType& key) const
 {
     return tree.find(key) ? 1 : 0;
 }
@@ -193,7 +225,19 @@ std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::max()
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
+const std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::max() const
+{
+    return tree.max(tree.getRoot())->KeyValuePair;
+}
+
+template<typename KeyType, typename ValueType, typename Compare>
 std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::min()
+{
+    return tree.min(tree.getRoot())->KeyValuePair;
+}
+
+template<typename KeyType, typename ValueType, typename Compare>
+const std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::min() const
 {
     return tree.min(tree.getRoot())->KeyValuePair;
 }
@@ -211,22 +255,22 @@ void Map<KeyType, ValueType, Compare>::clear()
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-void Map<KeyType, ValueType, Compare>::display()
+void Map<KeyType, ValueType, Compare>::display() const
 {
     tree.displayKeyValue();
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-bool Map<KeyType, ValueType, Compare>::operator==(Map<KeyType, ValueType, Compare>& other)
+bool Map<KeyType, ValueType, Compare>::operator==(const Map<KeyType, ValueType, Compare>& other) const
 {
     if (tree.size() != other.tree.size())
         return false;
 
-    Iterator it1 = begin();
-    Iterator it2 = other.begin();
+    ConstIterator it1 = begin();
+    ConstIterator it2 = other.begin();
     while (it1 != end())
     {
-        if (it1 != it2)
+        if (*it1 != *it2)
             return false;
         ++it1;
         ++it2;
@@ -235,19 +279,25 @@ bool Map<KeyType, ValueType, Compare>::operator==(Map<KeyType, ValueType, Compar
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-bool Map<KeyType, ValueType, Compare>::operator!=(const RBT<KeyType, ValueType, Compare>& other)
+bool Map<KeyType, ValueType, Compare>::operator!=(const Map<KeyType, ValueType, Compare>& other) const
 {
-    return !(tree == other);
+    return !(*this == other);
 }
 
+/*
+* @brief Merges the contents of mergeMap into this map.
+* 
+* The mergeMap is emptied after the merge operation.
+* 
+* @param mergeMap The map to merge into this map.
+*/
 template<typename KeyType, typename ValueType, typename Compare>
 void Map<KeyType, ValueType, Compare>::mergeMaps(Map<KeyType, ValueType, Compare>& mergeMap)
 {
     for (Iterator it = mergeMap.begin(); it != mergeMap.end(); ++it)
-    {
-        std::pair<KeyType, ValueType> pair = *it;
-        tree.insert(pair);
-    }
+        tree.insert(*it);
+
+    mergeMap.clear();
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
@@ -322,6 +372,46 @@ typename Map<KeyType, ValueType, Compare>::Iterator Map<KeyType, ValueType, Comp
             node = node->right;
     }
     return (upperNode == nullptr) ? end() : Iterator(upperNode, this);
+}
+
+template<typename KeyType, typename ValueType, typename Compare>
+typename Map<KeyType, ValueType, Compare>::ConstIterator
+Map<KeyType, ValueType, Compare>::lower_bound(const KeyType& key) const
+{
+    typename RBT<KeyType, ValueType, Compare>::Node* lowerNode = nullptr;
+    typename RBT<KeyType, ValueType, Compare>::Node* node = tree.getRoot();
+    while (node != tree.getSentinel())
+    {
+        if (node->KeyValuePair.first == key)
+            return ConstIterator(node, this);
+        if (!comparator(key, node->KeyValuePair.first))
+        {
+            lowerNode = node;
+            node = node->left;
+        }
+        else
+            node = node->right;
+    }
+    return (lowerNode == nullptr) ? cend() : ConstIterator(lowerNode, this);
+}
+
+template<typename KeyType, typename ValueType, typename Compare>
+typename Map<KeyType, ValueType, Compare>::ConstIterator
+Map<KeyType, ValueType, Compare>::upper_bound(const KeyType& key) const
+{
+    typename RBT<KeyType, ValueType, Compare>::Node* upperNode = nullptr;
+    typename RBT<KeyType, ValueType, Compare>::Node* node = tree.getRoot();
+    while (node != tree.getSentinel())
+    {
+        if (comparator(key, node->KeyValuePair.first))
+        {
+            upperNode = node;
+            node = node->left;
+        }
+        else
+            node = node->right;
+    }
+    return (upperNode == nullptr) ? cend() : ConstIterator(upperNode, this);
 }
 
 /* ======================= Iterator Implementations ======================= */
