@@ -1,6 +1,7 @@
-#pragma once
-#include <iostream>
-#include <utility>
+export module RedBlackTree;
+
+import <iostream>;
+import <utility>;
 
 /**
  * @brief A red–black tree implementation.
@@ -12,7 +13,7 @@
  * @tparam ValueType Type of values.
  * @tparam Compare   Comparison functor (default: std::less<KeyType>).
  */
-template <typename KeyType, typename ValueType, typename Compare = std::less<KeyType>>
+export template <typename KeyType, typename ValueType, typename Compare = std::less<KeyType>>
 class RBT
 {
 public:
@@ -71,8 +72,8 @@ public:
     RBT(const Compare& comparator = Compare());
     RBT(const RBT& other, const Compare& comparator = Compare());
     RBT& operator=(const RBT& other);
-	RBT(RBT&& other) noexcept;
-	RBT& operator=(RBT&& other) noexcept;
+    RBT(RBT&& other) noexcept;
+    RBT& operator=(RBT&& other) noexcept;
     ~RBT();
 
     // Public member functions
@@ -510,13 +511,13 @@ RBT<KeyType, ValueType, Compare>::RBT(const RBT& other, const Compare& comparato
 template<typename KeyType, typename ValueType, typename Compare>
 RBT<KeyType, ValueType, Compare>& RBT<KeyType, ValueType, Compare>::operator=(const RBT& other)
 {
-	if (this != &other)
+    if (this != &other)
     {
         clear();
         root = CopySubtree(other.root, other.sentinel, sentinel, true);
         count = other.count;
     }
-	return *this;
+    return *this;
 }
 
 /**
@@ -526,10 +527,10 @@ RBT<KeyType, ValueType, Compare>& RBT<KeyType, ValueType, Compare>::operator=(co
  */
 template<typename KeyType, typename ValueType, typename Compare>
 RBT<KeyType, ValueType, Compare>::RBT(RBT&& other) noexcept
-	: root(other.root), sentinel(other.sentinel), comparator(std::move(other.comparator)), count(other.count)
+    : root(other.root), sentinel(other.sentinel), comparator(std::move(other.comparator)), count(other.count)
 {
-	other.root = other.sentinel = nullptr;
-	other.count = 0;
+    other.root = other.sentinel = nullptr;
+    other.count = 0;
 }
 
 /**
@@ -540,16 +541,16 @@ RBT<KeyType, ValueType, Compare>::RBT(RBT&& other) noexcept
 template<typename KeyType, typename ValueType, typename Compare>
 RBT<KeyType, ValueType, Compare>& RBT<KeyType, ValueType, Compare>::operator=(RBT&& other) noexcept
 {
-	if (this == &other)
-		return *this;
-	clear();
-	root = other.root;
-	sentinel = other.sentinel;
-	comparator = std::move(other.comparator);
-	count = other.count;
-	other.root = other.sentinel = nullptr;
-	other.count = 0;
-	return *this;
+    if (this == &other)
+        return *this;
+    clear();
+    root = other.root;
+    sentinel = other.sentinel;
+    comparator = std::move(other.comparator);
+    count = other.count;
+    other.root = other.sentinel = nullptr;
+    other.count = 0;
+    return *this;
 }
 
 /**
@@ -686,7 +687,7 @@ typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare
 
 /**
  * @brief Finds the successor of a given node.
- * 
+ *
  * Uses const_cast to call the non-const version then casts the result back to const.
  * This is a workaround to avoid code duplication
  *
@@ -750,7 +751,7 @@ typename RBT<KeyType, ValueType, Compare>::Node* RBT<KeyType, ValueType, Compare
             return node;
         node = comparator(node->KeyValuePair.first, keySearch) ? node->right : node->left;
     }
-    return nullptr;
+    return sentinel;
 }
 
 /**
@@ -777,7 +778,7 @@ template <typename KeyType, typename ValueType, typename Compare>
 void RBT<KeyType, ValueType, Compare>::deleteKey(const KeyType& keyDeleted)
 {
     Node* nodeDeleted = find(keyDeleted);
-    if (nodeDeleted)
+    if (nodeDeleted != sentinel)
     {
         erase(nodeDeleted);
         count--;
@@ -795,13 +796,13 @@ void RBT<KeyType, ValueType, Compare>::deleteKey(const KeyType& keyDeleted)
 template <typename KeyType, typename ValueType, typename Compare>
 ValueType& RBT<KeyType, ValueType, Compare>::operator[](const KeyType& key)
 {
-	Node* node = find(key);
-    if (!node)
+    Node* node = find(key);
+    if (node == sentinel)
     {
-		insert({ key, ValueType() });
-		node = find(key);
-	}
-	return node->KeyValuePair.second;
+        insert({ key, ValueType() });
+        node = find(key);
+    }
+    return node->KeyValuePair.second;
 }
 
 /**

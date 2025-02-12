@@ -1,66 +1,88 @@
-#include "Map.h"
+import Map;
 #include <iostream>
+#include <string>
 
-// Custom comparator for descending order
-struct DescendingComparator
-{
-    bool operator()(int a, int b) const
-    {
+// Custom comparator: sorts fruit names in descending order.
+struct DescendingComparator {
+    bool operator()(const std::string& a, const std::string& b) const {
         return a > b;
     }
 };
 
-int main()
-{
-    // ===============================
-    // Example 1: Default Comparator (Ascending)
-    // ===============================
-    {
-        Map<int, std::string> map;
-        map.insert({ 1, "Apple" });
-        map.insert({ 2, "Orange" });
-        map.insert({ 3, "Banana" });
+int main() {
+    using namespace std;
 
-        std::cout << "Ascending order (default comparator):\n";
-        for (auto it = map.begin(); it != map.end(); ++it)
-            std::cout << "Key: " << it->first << ", Value: " << it->second << "\n";
+    // --- Default Fruit Inventory (Ascending Order) ---
+    Map<string, int> fruitInventory;
+    fruitInventory.insert({ "Apple", 50 });
+    fruitInventory.insert({ "Banana", 30 });
+    fruitInventory.insert({ "Cherry", 20 });
+    fruitInventory["Date"] = 40;       // Insert via operator[]
+    fruitInventory["Banana"] = 35;     // Update existing key
 
-        auto lb = map.lower_bound(2);
-        if (lb != map.end())
-            std::cout << "lower_bound(2): Key: " << lb->first << ", Value: " << lb->second << "\n";
+    cout << "Fruit Inventory (Ascending Order):\n";
+    for (auto it = fruitInventory.begin(); it != fruitInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
 
-        auto ub = map.upper_bound(2);
-        if (ub != map.end())
-            std::cout << "upper_bound(2): Key: " << ub->first << ", Value: " << ub->second << "\n";
-        else
-            std::cout << "upper_bound(2) reached end.\n";
-    }
+    // --- Lookup Operations & Bounds ---
+    if (auto it = fruitInventory.find("Cherry"); it != fruitInventory.end())
+        cout << "Found 'Cherry' with quantity: " << it->second << "\n";
 
-    std::cout << "\n";
+    auto lb = fruitInventory.lower_bound("Date");
+    if (lb != fruitInventory.end())
+        cout << "Lower bound for 'Date': " << lb->first << "\n";
+    auto ub = fruitInventory.upper_bound("Date");
+    if (ub != fruitInventory.end())
+        cout << "Upper bound for 'Date': " << ub->first << "\n";
+    cout << "\n";
 
-    // ===============================
-    // Example 2: Custom Comparator (Descending)
-    // ===============================
-    {
-        Map<int, std::string, DescendingComparator> descendingMap;
-        descendingMap.insert({ 1, "Apple" });
-        descendingMap.insert({ 2, "Orange" });
-        descendingMap.insert({ 3, "Banana" });
+    // --- Erase an Element ---
+    fruitInventory.erase("Apple");
+    cout << "After erasing 'Apple':\n";
+    for (auto it = fruitInventory.begin(); it != fruitInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
 
-        std::cout << "Descending order (custom comparator):\n";
-        for (auto it = descendingMap.begin(); it != descendingMap.end(); ++it)
-            std::cout << "Key: " << it->first << ", Value: " << it->second << "\n";
+    // --- Merge with Another Map ---
+    Map<string, int> extraFruits;
+    extraFruits.insert({ "Elderberry", 15 });
+    extraFruits.insert({ "Fig", 25 });
+    fruitInventory.mergeMaps(extraFruits);
+    cout << "After merging extra fruits:\n";
+    for (auto it = fruitInventory.begin(); it != fruitInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
 
-        auto lb = descendingMap.lower_bound(2);
-        if (lb != descendingMap.end())
-            std::cout << "lower_bound(2): Key: " << lb->first << ", Value: " << lb->second << "\n";
+    // --- Copy and Move Semantics ---
+    Map<string, int> copyInventory = fruitInventory;                 // Copy constructor
+    Map<string, int> movedInventory = std::move(copyInventory);      // Move constructor
+    cout << "Moved Inventory:\n";
+    for (auto it = movedInventory.begin(); it != movedInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "Copy Inventory is empty: " << boolalpha << copyInventory.empty() << "\n\n";
 
-        auto ub = descendingMap.upper_bound(2);
-        if (ub != descendingMap.end())
-            std::cout << "upper_bound(2): Key: " << ub->first << ", Value: " << ub->second << "\n";
-        else
-            std::cout << "upper_bound(2) reached end.\n";
-    }
+    // --- Equality Comparison ---
+    Map<string, int> compareInventory = fruitInventory;
+    cout << "fruitInventory " << (fruitInventory == compareInventory ? "==" : "!=")
+        << " compareInventory\n\n";
+
+    // --- Clear the Map ---
+    fruitInventory.clear();
+    cout << "After clearing, fruitInventory empty: " << fruitInventory.empty() << "\n\n";
+
+    // --- Custom Comparator Map (Descending Order) ---
+    Map<string, int, DescendingComparator> fruitInventoryDesc;
+    fruitInventoryDesc.insert({ "Apple", 50 });
+    fruitInventoryDesc.insert({ "Banana", 30 });
+    fruitInventoryDesc.insert({ "Cherry", 20 });
+    fruitInventoryDesc["Date"] = 40;
+    fruitInventoryDesc["Banana"] = 35;
+
+    cout << "Fruit Inventory (Descending Order):\n";
+    for (auto it = fruitInventoryDesc.begin(); it != fruitInventoryDesc.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
 
     return 0;
 }

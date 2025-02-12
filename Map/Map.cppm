@@ -1,6 +1,7 @@
-#pragma once
-#include "RBT.h"
-#include <stdexcept>
+export module Map;
+
+import RedBlackTree;
+import <stdexcept>;
 
 /**
  * @brief Map implementation using a red–black tree.
@@ -12,7 +13,7 @@
  * @tparam ValueType The type of values.
  * @tparam Compare   The comparator type (default: std::less<KeyType>).
  */
-template <typename KeyType, typename ValueType, typename Compare = std::less<KeyType>>
+export template <typename KeyType, typename ValueType, typename Compare = std::less<KeyType>>
 class Map
 {
     RBT<KeyType, ValueType, Compare> tree;
@@ -30,21 +31,21 @@ public:
     Map(Iterator itBegin, Iterator itEnd, const Compare& comparator = Compare());
     Map& operator=(const Map& other);
     Map(Map&& other);
-	Map& operator=(Map&& other);
+    Map& operator=(Map&& other);
     ~Map() {}
 
     // Basic member functions
-    typename RBT<KeyType, ValueType, Compare>::Node* find(const KeyType& key);
-    const typename RBT<KeyType, ValueType, Compare>::Node* find(const KeyType& key) const;
+    Iterator find(const KeyType& key);
+    ConstIterator find(const KeyType& key) const;
     ValueType& operator[](const KeyType& key);
     void insert(const KeyValue& KeyValue);
     bool empty() const;
     int size() const;
     int count(const KeyType& key) const;
-    KeyValue& max();
-    const KeyValue& max() const;
-    KeyValue& min();
-    const KeyValue& min() const;
+    Iterator max();
+    ConstIterator max() const;
+    Iterator min();
+    ConstIterator min() const;
     void erase(const KeyType& keyDeleted);
     void clear();
     void display() const;
@@ -60,7 +61,7 @@ public:
     Iterator lower_bound(const KeyType& key);
     Iterator upper_bound(const KeyType& key);
     ConstIterator lower_bound(const KeyType& key) const;
-	ConstIterator upper_bound(const KeyType& key) const;
+    ConstIterator upper_bound(const KeyType& key) const;
     ConstIterator begin() const;
     ConstIterator end() const;
     ConstIterator cbegin() const;
@@ -161,31 +162,32 @@ Map<KeyType, ValueType, Compare>& Map<KeyType, ValueType, Compare>::operator=(co
 
 template<typename KeyType, typename ValueType, typename Compare>
 Map<KeyType, ValueType, Compare>::Map(Map&& other)
-	: tree(std::move(other.tree)), comparator(std::move(other.comparator))
+    : tree(std::move(other.tree)), comparator(std::move(other.comparator))
 {}
 
 template<typename KeyType, typename ValueType, typename Compare>
-Map<KeyType, ValueType, Compare>& Map<KeyType, ValueType, Compare>::operator=(Map && other)
+Map<KeyType, ValueType, Compare>& Map<KeyType, ValueType, Compare>::operator=(Map&& other)
 {
-	if (this != &other)
+    if (this != &other)
     {
         tree = std::move(other.tree);
         comparator = std::move(other.comparator);
     }
-	return *this;
-}
-
-
-template<typename KeyType, typename ValueType, typename Compare>
-typename RBT<KeyType, ValueType, Compare>::Node* Map<KeyType, ValueType, Compare>::find(const KeyType& key)
-{
-    return tree.find(key);
+    return *this;
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-const typename RBT<KeyType, ValueType, Compare>::Node* Map<KeyType, ValueType, Compare>::find(const KeyType& key) const
+typename Map<KeyType, ValueType, Compare>::Iterator Map<KeyType, ValueType, Compare>::find(const KeyType& key)
 {
-    return tree.find(key);
+    auto node = tree.find(key);
+    return (node == tree.getSentinel()) ? end() : Iterator(node, this);
+}
+
+template<typename KeyType, typename ValueType, typename Compare>
+typename Map<KeyType, ValueType, Compare>::ConstIterator Map<KeyType, ValueType, Compare>::find(const KeyType& key) const
+{
+    auto node = tree.find(key);
+    return (node == tree.getSentinel()) ? cend() : ConstIterator(node, this);
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
@@ -215,31 +217,32 @@ int Map<KeyType, ValueType, Compare>::size() const
 template<typename KeyType, typename ValueType, typename Compare>
 int Map<KeyType, ValueType, Compare>::count(const KeyType& key) const
 {
-    return tree.find(key) ? 1 : 0;
+    return (find(key) != cend()) ? 1 : 0;
+
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::max()
+typename Map<KeyType, ValueType, Compare>::Iterator Map<KeyType, ValueType, Compare>::max()
 {
-    return tree.max(tree.getRoot())->KeyValuePair;
+    return Iterator(tree.max(tree.getRoot()), this);
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-const std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::max() const
+typename Map<KeyType, ValueType, Compare>::ConstIterator Map<KeyType, ValueType, Compare>::max() const
 {
-    return tree.max(tree.getRoot())->KeyValuePair;
+    return ConstIterator(tree.max(tree.getRoot()), this);
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::min()
+typename Map<KeyType, ValueType, Compare>::Iterator Map<KeyType, ValueType, Compare>::min()
 {
-    return tree.min(tree.getRoot())->KeyValuePair;
+    return Iterator(tree.min(tree.getRoot()), this);
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
-const std::pair<KeyType, ValueType>& Map<KeyType, ValueType, Compare>::min() const
+typename Map<KeyType, ValueType, Compare>::ConstIterator Map<KeyType, ValueType, Compare>::min() const
 {
-    return tree.min(tree.getRoot())->KeyValuePair;
+    return ConstIterator(tree.min(tree.getRoot()), this);
 }
 
 template<typename KeyType, typename ValueType, typename Compare>
@@ -286,9 +289,9 @@ bool Map<KeyType, ValueType, Compare>::operator!=(const Map<KeyType, ValueType, 
 
 /*
 * @brief Merges the contents of mergeMap into this map.
-* 
+*
 * The mergeMap is emptied after the merge operation.
-* 
+*
 * @param mergeMap The map to merge into this map.
 */
 template<typename KeyType, typename ValueType, typename Compare>
@@ -345,7 +348,7 @@ typename Map<KeyType, ValueType, Compare>::Iterator Map<KeyType, ValueType, Comp
     {
         if (node->KeyValuePair.first == key)
             return Iterator(node, this);
-        if (!comparator(key, node->KeyValuePair.first))
+        if (!comparator(node->KeyValuePair.first, key))
         {
             lowerNode = node;
             node = node->left;
@@ -384,7 +387,7 @@ Map<KeyType, ValueType, Compare>::lower_bound(const KeyType& key) const
     {
         if (node->KeyValuePair.first == key)
             return ConstIterator(node, this);
-        if (!comparator(key, node->KeyValuePair.first))
+        if (!comparator(node->KeyValuePair.first, key))
         {
             lowerNode = node;
             node = node->left;
