@@ -1,108 +1,206 @@
-# Map Class
+# C++ Red-Black Tree & Map Implementation
 
-The Map class is a key-value mapping container similar to `std::map`, implemented using a Red-Black Tree internally. It provides efficient insertion, deletion, and searching operations with a balanced tree structure.
+A C++ implementation from scratch of a map container similar to `std::map` that uses a red–black tree internally.
 
-## Features
+---
 
-- **Key-Value Mapping**: Stores key-value pairs where keys are unique and ordered.
-- **Red-Black Tree Implementation**: Utilizes a Red-Black Tree data structure.
-- **Efficient Operations**: Offers logarithmic time complexity for insertion, deletion, and searching operations.
-- **Iterator Support**: Provides iterators for traversal and manipulation of elements.
-- **Templated**: This map class is templated, allowing the storage of various types for both keys and values. Additionally, the comparator is also templated, providing flexibility in sorting behavior.
-- **Multiple Constructors**: Includes default constructor, copy constructor, range constructor, and constructor with a vector of values.
-- **Custom Comparator**: Offers the option to define a custom comparator for the map's key comparison operations.
-- **Operator Overloading**: Overloaded operators like : operator=, operator[], operator==, operator!=,
+## Overview
+
+- **Red–Black Tree:**  
+  A self-balancing binary search tree with O(log n) operations. Core operations such as rotations, repairs, and traversals are implemented using a sentinel node strategy.
+
+- **Map Container:**  
+  Wraps the red–black tree to provide an interface similar to `std::map`. Supports custom comparators, full iterator support, operator overloading, etc.
+
+- **Modern C++:**  
+  Uses C++20 modules, templates, and move semantics.
+
+---
+
+## Key Features
+
+- **Iterators:**
+
+  - Provides both `Iterator` and `ConstIterator` with support for increment, decrement, and basic arithmetic.
+
+- **Templated Design:**
+
+  - `template <typename KeyType, typename ValueType, typename Compare = std::less<KeyType>>`.
+  - Supports arbitrary key and value types, and allows for a custom comparator to control key ordering.
+
+- **Cross-Platform Potential:**
+
+  - Built using `CMake` to make it cross-platform. (Tested with the Visual Studio generator on Windows; compatibility with other generators/platforms is unverified)
+
+- **Comprehensive Operations**
+
+  - `insert`, `erase`, `clear`, `size`, `empty`, `find`, and more.
+  - Range queries like `lower_bound`, `upper_bound`.
+  - Merging support with `mergeMaps()`.
+
+- **Operator Overloads**
+  - Comparisons: `==`, `!=`.
+  - Element access: `[]`.
+  - Assignment & move semantics: copy/move constructor, `operator=`, etc.
+
+---
 
 ## Functionality
 
-### Constructors:
-  - Default Constructor
-  - Copy Constructor
-  - Range Constructor
-  - Vector Constructor
+### Constructors & Assignment
 
-### Operators:
-  - `operator=`: Assignment operator
-  - `operator[]`: Subscript operator
-  - `operator==`: Equality operator
-  - `operator!=`: Inequality operator
+- **Map(const Compare&)** – Default constructor.
+- **Map(const Map&)**, **Map(Map&&)**, **operator=()** – Copy and move operations.
 
-### Capacity:
-- `empty`: Checks if the map is empty.
-- `size`: Returns the number of elements in the map.
+### Basic Operations
 
-### Modifiers:
-- `insert`: Inserts an element into the map.
-- `erase`: Removes an element from the map.
-- `clear`: Removes all elements from the map.
-- `mergeMaps`: Merges another map into this map.
+- **find(key)** – Returns an iterator to the element with the given key.
+- **operator[](key)** – Accesses/inserts an element by key.
+- **insert(pair)** – Inserts a key–value pair.
+- **erase(key)** – Removes the element with the specified key.
+- **clear()** – Clears the map.
+- **empty()** – Checks if the map is empty.
+- **size()** – Returns the number of elements.
 
-### Lookup:
-- `find`: Finds an element with a specified key.
-- `count`: Counts the number of elements with a specified key.
+### Range & Query Operations
 
-### Iterator operations:
-- `begin`: Returns an iterator to the beginning.
-- `end`: Returns an iterator to the end.
-- `lower_bound`: Returns an iterator to the first element not less than the given key.
-- `upper_bound`: Returns an iterator to the first element greater than the given key.
+- **min() / max()** – Returns an iterator to the smallest/largest element.
+- **lower_bound(key) / upper_bound(key)** – Provides range queries.
 
-### Observers:
-- `max`: Returns the maximum key in the map.
-- `min`: Returns the minimum key in the map.
+### Comparison & Merging
 
- ## Iterator
+- **operator== / operator!=** – Equality comparisons.
+- **mergeMaps(other)** – Merges another map into this one.
 
-- **Prefix Increment (++)**: Advances the iterator to the next element in the sequence and returns a reference to the updated iterator.
-  
-- **Postfix Increment (++)**: Advances the iterator to the next element in the sequence but returns a copy of the iterator as it was before the increment.
+### Iterators
 
-- **Prefix Decrement (--)**: Moves the iterator to the previous element in the sequence and returns a reference to the updated iterator.
-  
-- **Postfix Decrement (--)**: Moves the iterator to the previous element in the sequence but returns a copy of the iterator as it was before the decrement.
+- **begin(), end(), cbegin(), cend()** – Standard iterator functions.
+- Custom iterator support for navigation (e.g., `++`, `--`, `+`, `-`).
 
-- **Dereference (*)**: Returns a reference to the KeyValuePair of the element pointed to by the iterator.
+---
 
-- **Member Access Arrow (->)**: Allows access to the KeyValuePair pointed to by the iterator.
+## Build & Run Instructions
 
-- **Compound Assignment Operators (+=, -=)**: These operators allow you to modify the iterator's position by a given offset.
-  
-- **Equality and Inequality Operators (== , !=)**: These operators check if two iterators have the same KeyValue pair.
+**Prerequisites**:
 
-## Example Usage
+- C++20-compatible compiler
+- CMake 3.26 or later
+  > **Note:** This project currently works with the Visual Studio generator. The Ninja generator does not work and compatibility with other generators is not verified.
+
+### Building the Library and Demo
+
+1. **Clone the repository**
+   ```bash
+    git clone https://github.com/MarioAndreiVoicu/Map.git
+   ```
+2. **Create and enter a build directory in the project root**
+   ```bash
+   mkdir build && cd build
+   ```
+3. **Generate build files with CMake (using the Visual Studio generator)**
+   ```bash
+    cmake -G "Visual Studio 17 2022" ..
+   ```
+   > **Note:** If you prefer to use a different generator, adjust the command accordingly, but note that only the Visual Studio generator has been confirmed to work.
+4. **Build the project**
+   ```bash
+   cmake --build .
+   ```
+
+### Running the Demo
+
+Either open the `.sln` file and set MapExample as the startup project, <br />
+or <br />
+Search for and run `MapDemo.exe` from the build directory. <br />
+The demo prints the results of the example below.
 
 ```cpp
-#include "Map.h"
+import Map;
+#include <iostream>
+#include <string>
 
-struct CustomComparator  // Functor
-{
-    bool operator()(int a, int b)
-    {
-        return a > b; // Sort in descending order
+// Custom comparator: sorts fruit names in descending order.
+struct DescendingComparator {
+    bool operator()(const std::string& a, const std::string& b) const {
+        return a > b;
     }
 };
 
-int main()
-{
-    // Creating a Map object
-    Map<int, std::string, CustomComparator> map;  // or just use Map<int, std::string> map for the std::less comparator,which will sort the elements ascending
+int main() {
+    using namespace std;
 
-   // Inserting elements
-    map.insert({ 1, "Apple" });
-    map.insert({ 2, "Orange" });
-    map.insert({ 3, "Banana" });
+    // --- Default Fruit Inventory (Ascending Order) ---
+    Map<string, int> fruitInventory;
+    fruitInventory.insert({ "Apple", 50 });
+    fruitInventory.insert({ "Banana", 30 });
+    fruitInventory.insert({ "Cherry", 20 });
+    fruitInventory["Date"] = 40;       // Insert via operator[]
+    fruitInventory["Banana"] = 35;     // Update existing key
 
-    // Iterate over the map using the Iterator
-    for (auto it = map.begin(); it != map.end(); ++it)
-    {
-        std::cout << "Key: " << it->first << ", Value: " << it->second << "\n";
-    }
+    cout << "Fruit Inventory (Ascending Order):\n";
+    for (auto it = fruitInventory.begin(); it != fruitInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
 
-    // Accessing elements
-    std::cout << "Value at key 2: " << map[2] << "\n";
+    // --- Lookup Operations & Bounds ---
+    if (auto it = fruitInventory.find("Cherry"); it != fruitInventory.end())
+        cout << "Found 'Cherry' with quantity: " << it->second << "\n";
 
-    // Deleting an element
-    map.erase(2);
+    auto lb = fruitInventory.lower_bound("Date");
+    if (lb != fruitInventory.end())
+        cout << "Lower bound for 'Date': " << lb->first << "\n";
+    auto ub = fruitInventory.upper_bound("Date");
+    if (ub != fruitInventory.end())
+        cout << "Upper bound for 'Date': " << ub->first << "\n";
+    cout << "\n";
+
+    // --- Erase an Element ---
+    fruitInventory.erase("Apple");
+    cout << "After erasing 'Apple':\n";
+    for (auto it = fruitInventory.begin(); it != fruitInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
+
+    // --- Merge with Another Map ---
+    Map<string, int> extraFruits;
+    extraFruits.insert({ "Elderberry", 15 });
+    extraFruits.insert({ "Fig", 25 });
+    fruitInventory.mergeMaps(extraFruits);
+    cout << "After merging extra fruits:\n";
+    for (auto it = fruitInventory.begin(); it != fruitInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
+
+    // --- Copy and Move Semantics ---
+    Map<string, int> copyInventory = fruitInventory;                 // Copy constructor
+    Map<string, int> movedInventory = std::move(copyInventory);      // Move constructor
+    cout << "Moved Inventory:\n";
+    for (auto it = movedInventory.begin(); it != movedInventory.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "Copy Inventory is empty: " << boolalpha << copyInventory.empty() << "\n\n";
+
+    // --- Equality Comparison ---
+    Map<string, int> compareInventory = fruitInventory;
+    cout << "fruitInventory " << (fruitInventory == compareInventory ? "==" : "!=")
+        << " compareInventory\n\n";
+
+    // --- Clear the Map ---
+    fruitInventory.clear();
+    cout << "After clearing, fruitInventory empty: " << fruitInventory.empty() << "\n\n";
+
+    // --- Custom Comparator Map (Descending Order) ---
+    Map<string, int, DescendingComparator> fruitInventoryDesc;
+    fruitInventoryDesc.insert({ "Apple", 50 });
+    fruitInventoryDesc.insert({ "Banana", 30 });
+    fruitInventoryDesc.insert({ "Cherry", 20 });
+    fruitInventoryDesc["Date"] = 40;
+    fruitInventoryDesc["Banana"] = 35;
+
+    cout << "Fruit Inventory (Descending Order):\n";
+    for (auto it = fruitInventoryDesc.begin(); it != fruitInventoryDesc.end(); ++it)
+        cout << it->first << ": " << it->second << "\n";
+    cout << "\n";
 
     return 0;
 }
+```

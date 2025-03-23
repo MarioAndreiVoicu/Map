@@ -84,5 +84,7 @@ int main() {
         cout << it->first << ": " << it->second << "\n";
     cout << "\n";
 
+    // Wait for user input before exiting.
+    std::cin.get();
     return 0;
 }
